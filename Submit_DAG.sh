@@ -4,3 +4,4 @@
  airflow dags list|grep "my-first-dag"
  #check dag's task
  airflow tasks list my-first-dag
+ 
