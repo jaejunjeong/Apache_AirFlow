@@ -39,17 +39,23 @@ dag = DAG(
 
 # define the tasks
 
+download = BashOperator(
+    task_id='download',
+    bash_command='wget "https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Apache%20Airflow/Build%20a%20DAG%20using%20Airflow/web-server-access-log.txt"',
+    dag=dag,
+)
+
 # define the first task named extract
 extract = BashOperator(
     task_id='extract',
-    bash_command='echo "extract"',
+    bash_command='cut -d"#" -f1,4 web-server-access-log.txt > /home/project/airflow/dags/extracted.txt',
     dag=dag,
 )
 
 # define the second task named transform
 transform = BashOperator(
     task_id='transform',
-    bash_command='cut -d":" -f1,3,6 /etc/passwd > /home/project/airflow/dags/extracted-data.txt',
+    bash_command='tr "[a-z]" "[A-Z]" < /home/project/airflow/dags/extracted.txt > /home/project/airflow/dags/capitalized.txt'
     dag=dag,
 )
 
@@ -57,9 +63,9 @@ transform = BashOperator(
 
 load = BashOperator(
     task_id='load',
-    bash_command='tr ":" "," < /home/project/airflow/dags/extracted-data.txt > /home/project/airflow/dags/transformed-data.csv',
+    bash_command='zip log.zip capitalized.txt',
     dag=dag,
 )
 
 # task pipeline
-extract >> transform >> load
+download >> extract >> transform >> load
