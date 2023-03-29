@@ -20,6 +20,15 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+##Setting Mean
+#the owner name,
+#when this DAG should run from: days_age(0) means today,
+#the email address where the alerts are sent to,
+#whether alert must be sent on failure,
+#whether alert must be sent on retry,
+#the number of retries in case of failure, and
+#the time delay between retries.
+
 # define the DAG
 dag = DAG(
     dag_id='sample-etl-dag',
@@ -40,7 +49,7 @@ extract = BashOperator(
 # define the second task named transform
 transform = BashOperator(
     task_id='transform',
-    bash_command='echo "transform"',
+    bash_command='cut -d":" -f1,3,6 /etc/passwd > /home/project/airflow/dags/extracted-data.txt',
     dag=dag,
 )
 
@@ -48,7 +57,7 @@ transform = BashOperator(
 
 load = BashOperator(
     task_id='load',
-    bash_command='echo "load"',
+    bash_command='tr ":" "," < /home/project/airflow/dags/extracted-data.txt > /home/project/airflow/dags/transformed-data.csv',
     dag=dag,
 )
 
